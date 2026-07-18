@@ -2,7 +2,7 @@ use std::{collections::HashMap, iter::Peekable, str::Chars, sync::LazyLock};
 
 use crate::token::Token;
 
-struct Lexer<'a> {
+pub struct Lexer<'a> {
     source_iter: Peekable<Chars<'a>>,
     counter: usize,
 }
@@ -30,7 +30,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn tokenize(&mut self) -> Option<Token> {
+    pub fn tokenize(&mut self) -> Option<Token> {
         self.skip_whitespace();
         if let Some(token) = self.parse_ident() {
             return Some(token);
