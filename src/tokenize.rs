@@ -99,33 +99,37 @@ impl<'a> Lexer<'a> {
         {
             number.push(c);
         }
-        if self.peek() != Some('.') {
-            return Some(Token::Int(number.parse::<i64>().unwrap()));
+        if self.peek() == Some('.') {
+            number.push('.');
+            while let Some(c) = self.forward()
+                && c.is_numeric()
+            {
+                number.push(c);
+            }
         }
-        number.push('.');
-        while let Some(c) = self.forward()
-            && c.is_numeric()
-        {
-            number.push(c);
-        }
-        if self.peek() != Some('e') && self.peek() != Some('E') {
-            return Some(Token::Float(number.parse::<f64>().unwrap()));
-        }
-        number.push(self.peek().unwrap());
-        self.forward();
-        if let Some(c) = self.peek()
-            && (c == '+' || c == '-')
-        {
-            number.push(c);
+        if self.peek() == Some('e') || self.peek() == Some('E') {
+            number.push(self.peek().unwrap());
             self.forward();
+            match self.peek() {
+                Some(c) if c == '+' || c == '-' => {
+                    number.push(c);
+                    self.forward();
+                }
+                None => return None,
+                _ => {}
+            }
+            while let Some(c) = self.peek()
+                && c.is_numeric()
+            {
+                number.push(c);
+                self.forward();
+            }
         }
-        while let Some(c) = self.peek()
-            && c.is_numeric()
-        {
-            number.push(c);
-            self.forward();
+        if number.chars().all(|c| c.is_digit(10)) {
+            Some(Token::Int(number.parse::<i64>().unwrap()))
+        } else {
+            Some(Token::Float(number.parse::<f64>().unwrap()))
         }
-        Some(Token::Float(number.parse::<f64>().unwrap()))
     }
 
     fn parse_string(&mut self) -> Option<Token> {
@@ -281,5 +285,29 @@ mod test {
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
         assert_eq!(token, Token::Float(12345.6));
+    }
+
+    #[test]
+    fn test_number_float_exponent_no_sign() {
+        let source = "123.456e20";
+        let mut lexer = Lexer::new(source);
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, Token::Float(123.456e20));
+    }
+
+    #[test]
+    fn test_number_float_exponent_no_decimal() {
+        let source = "123e-10";
+        let mut lexer = Lexer::new(source);
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, Token::Float(123.0e-10));
+    }
+
+    #[test]
+    fn test_number_float_exponent_numberless() {
+        let source = "123.456e";
+        let mut lexer = Lexer::new(source);
+        let token = lexer.tokenize();
+        assert_eq!(token, None);
     }
 }
