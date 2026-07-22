@@ -1,6 +1,6 @@
 use std::{collections::HashMap, iter::Peekable, str::Chars, sync::LazyLock};
 
-use crate::token::Token;
+use crate::token::{Span, Token};
 
 pub struct Lexer<'a> {
     source_iter: Peekable<Chars<'a>>,
@@ -30,19 +30,24 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    pub fn tokenize(&mut self) -> Option<Token> {
+    pub fn tokenize(&mut self) -> Option<(Token, Span)> {
         self.skip_whitespace();
+        let start = self.counter;
         if let Some(token) = self.parse_ident() {
-            return Some(token);
+            let span = Span::new(start, self.counter - start);
+            return Some((token, span));
         }
         if let Some(token) = self.parse_number() {
-            return Some(token);
+            let span = Span::new(start, self.counter - start);
+            return Some((token, span));
         }
         if let Some(token) = self.parse_string() {
-            return Some(token);
+            let span = Span::new(start, self.counter - start);
+            return Some((token, span));
         }
         if let Some(token) = self.parse_symbol() {
-            return Some(token);
+            let span = Span::new(start, self.counter - start);
+            return Some((token, span));
         }
         None
     }
@@ -173,14 +178,17 @@ impl<'a> Lexer<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::{token::Token, tokenize::Lexer};
+    use crate::{
+        token::{Span, Token},
+        tokenize::Lexer,
+    };
 
     #[test]
     fn test_ident_hello() {
         let source = "hello";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Ident("hello".to_string()));
+        assert_eq!(token, (Token::Ident("hello".to_string()), Span::new(0, 5)));
     }
 
     #[test]
@@ -188,7 +196,7 @@ mod test {
         let source = "_hello";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Ident("_hello".to_string()));
+        assert_eq!(token, (Token::Ident("_hello".to_string()), Span::new(0, 6)));
     }
 
     #[test]
@@ -196,7 +204,10 @@ mod test {
         let source = "hello123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Ident("hello123".to_string()));
+        assert_eq!(
+            token,
+            (Token::Ident("hello123".to_string()), Span::new(0, 8))
+        );
     }
 
     #[test]
@@ -204,7 +215,7 @@ mod test {
         let source = "    hello";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Ident("hello".to_string()));
+        assert_eq!(token, (Token::Ident("hello".to_string()), Span::new(4, 5)));
     }
 
     #[test]
@@ -212,7 +223,7 @@ mod test {
         let source = "0";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Int(0));
+        assert_eq!(token, (Token::Int(0), Span::new(0, 1)));
     }
 
     #[test]
@@ -220,7 +231,7 @@ mod test {
         let source = "123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Int(123));
+        assert_eq!(token, (Token::Int(123), Span::new(0, 3)));
     }
 
     #[test]
@@ -228,7 +239,7 @@ mod test {
         let source = "0123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Int(123));
+        assert_eq!(token, (Token::Int(123), Span::new(0, 4)));
     }
 
     #[test]
@@ -236,7 +247,7 @@ mod test {
         let source = "0.0";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(0.0));
+        assert_eq!(token, (Token::Float(0.0), Span::new(0, 3)));
     }
 
     #[test]
@@ -244,7 +255,7 @@ mod test {
         let source = "123.456";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(123.456));
+        assert_eq!(token, (Token::Float(123.456), Span::new(0, 7)));
     }
 
     #[test]
@@ -252,7 +263,7 @@ mod test {
         let source = "123.";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(123.0));
+        assert_eq!(token, (Token::Float(123.0), Span::new(0, 4)));
     }
 
     #[test]
@@ -260,7 +271,7 @@ mod test {
         let source = "0.123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(0.123));
+        assert_eq!(token, (Token::Float(0.123), Span::new(0, 5)));
     }
 
     #[test]
@@ -268,7 +279,7 @@ mod test {
         let source = "123.4560";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(123.4560));
+        assert_eq!(token, (Token::Float(123.4560), Span::new(0, 8)));
     }
 
     #[test]
@@ -276,7 +287,7 @@ mod test {
         let source = "123.456e-10";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(123.456e-10));
+        assert_eq!(token, (Token::Float(123.456e-10), Span::new(0, 11)));
     }
 
     #[test]
@@ -284,7 +295,7 @@ mod test {
         let source = "123.456e+2";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(12345.6));
+        assert_eq!(token, (Token::Float(12345.6), Span::new(0, 10)));
     }
 
     #[test]
@@ -292,7 +303,7 @@ mod test {
         let source = "123.456e20";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(123.456e20));
+        assert_eq!(token, (Token::Float(123.456e20), Span::new(0, 10)));
     }
 
     #[test]
@@ -300,7 +311,7 @@ mod test {
         let source = "123e-10";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
-        assert_eq!(token, Token::Float(123.0e-10));
+        assert_eq!(token, (Token::Float(123.0e-10), Span::new(0, 7)));
     }
 
     #[test]

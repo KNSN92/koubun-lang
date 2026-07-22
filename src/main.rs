@@ -15,8 +15,8 @@ fn main() {
         stdout.flush().unwrap();
         stdin.read_line(&mut buf).unwrap();
         let mut lexer = Lexer::new(&buf);
-        while let Some(token) = lexer.tokenize() {
-            println!("{:?}", token);
+        while let Some((token, span)) = lexer.tokenize() {
+            println!("[{}:{}] {:?}", span.start, span.start + span.len, token);
         }
         println!("---");
     }
