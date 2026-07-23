@@ -4,6 +4,9 @@ pub enum Token {
     Int(i64),
     Float(f64),
     String(String),
+    Comma,
+    LParen,
+    RParen,
     Symbol(String),
 }
 

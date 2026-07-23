@@ -8,8 +8,8 @@ pub struct Lexer<'a> {
 }
 
 const SYMBOLS: &[char] = &[
-    '(', ')', '{', '}', '[', ']', ';', ',', '.', '+', '-', '*', '/', '%', '=', '<', '>', '!', '&',
-    '|', '^', '~', '?', ':', '$', '@', '#',
+    '{', '}', '[', ']', ';', '.', '+', '-', '*', '/', '%', '=', '<', '>', '!', '&', '|', '^', '~',
+    '?', ':', '$', '@', '#',
 ];
 
 static GENERAL_ESCAPE_SEQUENCES: LazyLock<HashMap<char, char>> = LazyLock::new(|| {
@@ -166,13 +166,16 @@ impl<'a> Lexer<'a> {
     }
 
     fn parse_symbol(&mut self) -> Option<Token> {
-        if let Some(c) = self.peek() {
-            if SYMBOLS.contains(&c) {
-                self.forward();
-                return Some(Token::Symbol(c.to_string()));
-            }
-        }
-        None
+        let Some(c) = self.peek() else { return None };
+        let token = match c {
+            '(' => Token::LParen,
+            ')' => Token::RParen,
+            ',' => Token::Comma,
+            _ if SYMBOLS.contains(&c) => Token::Symbol(c.to_string()),
+            _ => return None,
+        };
+        self.forward();
+        Some(token)
     }
 }
 
@@ -320,5 +323,29 @@ mod test {
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize();
         assert_eq!(token, None);
+    }
+
+    #[test]
+    fn test_symbol() {
+        let source = "(+, -, *, /)";
+        let mut lexer = Lexer::new(source);
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::LParen, Span::new(0, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::Symbol("+".to_string()), Span::new(1, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::Comma, Span::new(2, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::Symbol("-".to_string()), Span::new(4, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::Comma, Span::new(5, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::Symbol("*".to_string()), Span::new(7, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::Comma, Span::new(8, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::Symbol("/".to_string()), Span::new(10, 1)));
+        let token = lexer.tokenize().unwrap();
+        assert_eq!(token, (Token::RParen, Span::new(11, 1)));
     }
 }
