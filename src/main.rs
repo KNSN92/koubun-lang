@@ -2,6 +2,7 @@ use std::io::Write;
 
 use crate::tokenize::Lexer;
 
+mod ast;
 mod token;
 mod tokenize;
 
