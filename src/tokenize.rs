@@ -187,7 +187,7 @@ mod test {
     };
 
     #[test]
-    fn test_ident_hello() {
+    fn ident_hello() {
         let source = "hello";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -195,7 +195,7 @@ mod test {
     }
 
     #[test]
-    fn test_ident_first_underscore() {
+    fn ident_first_underscore() {
         let source = "_hello";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -203,7 +203,7 @@ mod test {
     }
 
     #[test]
-    fn test_ident_after_second_number() {
+    fn ident_after_second_number() {
         let source = "hello123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -214,7 +214,7 @@ mod test {
     }
 
     #[test]
-    fn test_ident_before_whitespace() {
+    fn ident_before_whitespace() {
         let source = "    hello";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -222,7 +222,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_int_zero() {
+    fn number_int_zero() {
         let source = "0";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -230,7 +230,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_int_123() {
+    fn number_int_123() {
         let source = "123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -238,7 +238,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_int_leading_zero() {
+    fn number_int_leading_zero() {
         let source = "0123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -246,7 +246,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_0() {
+    fn number_float_0() {
         let source = "0.0";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -254,7 +254,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_123_456() {
+    fn number_float_123_456() {
         let source = "123.456";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -262,7 +262,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_no_decimal() {
+    fn number_float_no_decimal() {
         let source = "123.";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -270,7 +270,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_leading_zero() {
+    fn number_float_leading_zero() {
         let source = "0.123";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -278,7 +278,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_trailing_zero() {
+    fn number_float_trailing_zero() {
         let source = "123.4560";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -286,7 +286,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_exponent() {
+    fn number_float_exponent() {
         let source = "123.456e-10";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -294,7 +294,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_exponent_plus() {
+    fn number_float_exponent_plus() {
         let source = "123.456e+2";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -302,7 +302,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_exponent_no_sign() {
+    fn number_float_exponent_no_sign() {
         let source = "123.456e20";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -310,7 +310,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_exponent_no_decimal() {
+    fn number_float_exponent_no_decimal() {
         let source = "123e-10";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
@@ -318,7 +318,7 @@ mod test {
     }
 
     #[test]
-    fn test_number_float_exponent_numberless() {
+    fn number_float_exponent_numberless() {
         let source = "123.456e";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize();
@@ -326,7 +326,7 @@ mod test {
     }
 
     #[test]
-    fn test_symbol() {
+    fn symbol() {
         let source = "(+, -, *, /)";
         let mut lexer = Lexer::new(source);
         let token = lexer.tokenize().unwrap();
