@@ -3,6 +3,7 @@ use std::io::Write;
 use crate::tokenize::Lexer;
 
 mod ast;
+mod parse;
 mod token;
 mod tokenize;
 
