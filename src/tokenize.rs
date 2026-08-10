@@ -179,6 +179,14 @@ impl<'a> Lexer<'a> {
     }
 }
 
+impl<'a> Iterator for Lexer<'a> {
+    type Item = (Token, Span);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.tokenize()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::{
